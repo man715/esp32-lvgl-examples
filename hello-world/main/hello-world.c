@@ -30,8 +30,8 @@
  * PROTOTYPES
  ************************************/
 void configure_pins();
-void create_panel();
-void setup_lvgl(lv_disp_drv_t *, esp_lcd_panel_handle_t );
+lv_disp_t * create_panel();
+lv_disp_t * setup_lvgl(lv_disp_drv_t *, esp_lcd_panel_handle_t );
 static bool lvgl_flush_ready_cb(esp_lcd_panel_io_handle_t, esp_lcd_panel_io_event_data_t *, void *);
 static void lvgl_increase_tick(void *);
 void lvgl_flush_cb(lv_disp_drv_t *, const lv_area_t *, lv_color_t *);
@@ -45,9 +45,7 @@ void lv_example_get_started_1(lv_disp_t *);
 /************************************
  * STATIC VARIABLES
  ************************************/
-static lv_disp_drv_t disp_drv;
-static lv_disp_t * disp;
-static esp_lcd_panel_handle_t panel_handle = NULL;
+static lv_disp_drv_t disp_drv; // can stay
 
 /************************************
  * MAIN APPLICATION
@@ -61,8 +59,8 @@ void app_main(void)
     // Set RD to high
     gpio_set_level(LCD_RD, 1);
 
-    create_panel();
-    setup_lvgl(&disp_drv, panel_handle);
+    lv_disp_t * disp = create_panel();
+    
 
     /************************************
      * Turn on Back Light
@@ -93,8 +91,9 @@ void configure_pins()
 }
 
 // Create the display panel
-void create_panel()
+lv_disp_t * create_panel()
 {
+    esp_lcd_panel_handle_t panel_handle = NULL; // does not need to be static
     /************************************
      * Configure i80 bus
      ************************************/
@@ -176,9 +175,12 @@ void create_panel()
     esp_lcd_panel_swap_xy(panel_handle,true);
     esp_lcd_panel_mirror(panel_handle, true, false);
     esp_lcd_panel_set_gap(panel_handle, 0, 35);
+
+    lv_disp_t *disp = setup_lvgl(&disp_drv, panel_handle);
+    return disp;
 }
 
-void setup_lvgl(lv_disp_drv_t *disp_drv, esp_lcd_panel_handle_t panel_handle)
+lv_disp_t * setup_lvgl(lv_disp_drv_t *disp_drv, esp_lcd_panel_handle_t panel_handle)
 {
      /************************************
      * LVGL Setup
@@ -214,7 +216,8 @@ void setup_lvgl(lv_disp_drv_t *disp_drv, esp_lcd_panel_handle_t panel_handle)
     disp_drv->hor_res = LCD_H_RES;
     disp_drv->ver_res = LCD_V_RES;
     disp_drv->user_data = panel_handle;
-    disp = lv_disp_drv_register(disp_drv);
+    lv_disp_t * disp = lv_disp_drv_register(disp_drv);
+    return disp;
 }
 
 // Flushes the buffer?
