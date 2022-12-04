@@ -29,11 +29,11 @@
  * PROTOTYPES
  ************************************/
 void configure_pins();
-lv_disp_t * create_panel();
-lv_disp_t * setup_lvgl(lv_disp_drv_t *, esp_lcd_panel_handle_t );
+static lv_disp_t * create_panel();
+static lv_disp_t * setup_lvgl(lv_disp_drv_t *, esp_lcd_panel_handle_t );
 static bool lvgl_flush_ready_cb(esp_lcd_panel_io_handle_t, esp_lcd_panel_io_event_data_t *, void *);
 static void lvgl_increase_tick(void *);
-void lvgl_flush_cb(lv_disp_drv_t *, const lv_area_t *, lv_color_t *);
+static void lvgl_flush_cb(lv_disp_drv_t *, const lv_area_t *, lv_color_t *);
 static void createLvglTimerTask(void);
 
 /************************************
