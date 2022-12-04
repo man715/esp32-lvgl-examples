@@ -20,7 +20,6 @@
 #include "esp_lcd_panel_ops.h" // panel operations
 #include "esp_lcd_panel_io.h" // panel input and output functions
 #include "esp_err.h" // error handeling 
-#include "esp_log.h" // logging functions
 
 #include "lvgl.h"
 
@@ -65,7 +64,6 @@ void app_main(void)
     /************************************
      * Turn on Back Light
      ************************************/
-    ESP_LOGI("BACKLIGHT", "Turning Back Light On");
     gpio_set_level(LCD_POWER_ON, true);
     gpio_set_level(LCD_BL, BACK_LIGHT_ON_LEVEL);
     
@@ -231,7 +229,6 @@ static bool lvgl_flush_ready_cb(esp_lcd_panel_io_handle_t panel_io, esp_lcd_pane
 
 static void lvgl_increase_tick(void *args)
 {
-    // ESP_LOGI("TICK", "TICK");
     lv_tick_inc(LVGL_TICK_PERIOD);
 }
 
@@ -242,13 +239,11 @@ void lvgl_flush_cb(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
     esp_lcd_panel_handle_t panel_handle = (esp_lcd_panel_handle_t) disp->user_data;
 
     //copy the buffer's content to the display
-    ESP_LOGI("DISPLAY", "Writing to the display");
     int offsetX1 = area->x1;
     int offsetY1 = area->y1;
     int offsetX2 = area->x2 +1 ;
     int offsetY2 = area->y2 + 1;
     ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(panel_handle, offsetX1, offsetY1, offsetX2, offsetY2, color_p));
-    ESP_LOGI("DISPLAY", "FINISHED WRITING TO THE DISPLAY");
 }
 
 static void lvglTimerTask(void *param)
@@ -258,6 +253,9 @@ static void lvglTimerTask(void *param)
         lv_timer_handler();
         vTaskDelay(10 / portTICK_PERIOD_MS);
     }
+    
+    // Should never return
+    vTaskDelete(NULL);
 }
 
 static void createLvglTimerTask(void)
